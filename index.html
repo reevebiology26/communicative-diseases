@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR A-Level Biology: Communicable Diseases</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons CDN -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Google Fonts: Space Grotesk & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['"Space Grotesk"', 'sans-serif'],
+                    },
+                    colors: {
+                        bio: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            200: '#a7f3d0',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                            950: '#022c22',
+                        },
+                        cyber: {
+                            400: '#22d3ee',
+                            500: '#06b6d4',
+                            600: '#0891b2',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        alert: {
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; }
+        ::-webkit-scrollbar-thumb { background: #0891b2; border-radius: 5px; }
+
+        /* Bioluminescent Splash Background */
+        .bio-bg {
+            background-color: #020617;
+            background-image:
+                radial-gradient(circle at 20% 25%, rgba(6, 182, 212, 0.22) 0%, transparent 45%),
+                radial-gradient(circle at 80% 75%, rgba(16, 185, 129, 0.22) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.85) 0%, #020617 100%);
+        }
+
+        /* Floating Microbe / Cell Animations */
+        @keyframes floatCell {
+            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.35; }
+            50% { transform: translateY(-28px) translateX(14px) rotate(180deg); opacity: 0.7; }
+        }
+        @keyframes shieldPulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px #22d3ee); }
+            50% { transform: scale(1.35) translateY(-4px); filter: drop-shadow(0 0 18px #10b981); }
+        }
+        @keyframes bioAlert {
+            0%, 100% { transform: translateX(0); filter: drop-shadow(0 0 0px #f43f5e); }
+            25% { transform: translateX(-5px) rotate(-8deg); filter: drop-shadow(0 0 16px #f43f5e); }
+            50% { transform: translateX(5px) rotate(8deg); filter: drop-shadow(0 0 22px #f43f5e); }
+            75% { transform: translateX(-5px) rotate(-8deg); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-float-cell { animation: floatCell 9s ease-in-out infinite; }
+        .animate-shield-pulse { animation: shieldPulse 0.55s ease-out; }
+        .animate-bio-alert { animation: bioAlert 0.45s ease-in-out; }
+        .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
+
+        /* Navigation Tabs */
+        .tab-btn { transition: all 0.25s ease; border-bottom: 4px solid transparent; }
+        .tab-btn.active {
+            border-bottom-color: #0891b2;
+            color: #0891b2;
+            background-color: #ecfeff;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Sequence Sorter Cards */
+        .sort-card {
+            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.2s ease, background-color 0.2s ease;
+            user-select: none;
+        }
+        .sort-card.dragging {
+            opacity: 0.45;
+            transform: scale(0.98);
+        }
+        .sort-card.drag-over {
+            border-color: #06b6d4 !important;
+            background-color: #ecfeff !important;
+        }
+        .sort-card.selected-swap {
+            border-color: #0891b2 !important;
+            background-color: #cffafe !important;
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.3);
+        }
+        .sort-card.locked-correct {
+            border-color: #10b981 !important;
+            background-color: #ecfdf5 !important;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen overflow-hidden" id="main-body">
+
+    <!-- SPLASH SCREEN -->
+    <div id="splash-screen" class="fixed inset-0 z-50 bio-bg flex flex-col items-center justify-center transition-opacity duration-700 p-4">
+        <!-- Ambient Bioluminescent Nodes -->
+        <div class="fixed inset-0 pointer-events-none overflow-hidden">
+            <div class="absolute text-cyber-400 text-4xl animate-float-cell" style="top:12%; left:12%; animation-delay: 0s;"><i class="ph-duotone ph-virus"></i></div>
+            <div class="absolute text-bio-500 text-5xl animate-float-cell" style="top:22%; left:80%; animation-delay: 2s;"><i class="ph-duotone ph-shield-check"></i></div>
+            <div class="absolute text-cyber-500 text-3xl animate-float-cell" style="top:72%; left:16%; animation-delay: 4s;"><i class="ph-duotone ph-dna"></i></div>
+            <div class="absolute text-bio-400 text-4xl animate-float-cell" style="top:78%; left:84%; animation-delay: 1.5s;"><i class="ph-duotone ph-microscope"></i></div>
+            <div class="absolute text-cyber-400 text-2xl animate-float-cell" style="top:48%; left:8%; animation-delay: 3s;"><i class="ph-duotone ph-first-aid-kit"></i></div>
+        </div>
+
+        <div class="relative z-10 text-center flex flex-col items-center max-w-3xl bg-cyber-900/85 p-8 sm:p-10 rounded-3xl border-2 border-cyber-500/60 shadow-[0_0_50px_rgba(6,182,212,0.28)] backdrop-blur-md">
+            <div class="bg-cyber-500/15 p-4 rounded-2xl border border-cyber-400/40 mb-4">
+                <i class="ph-duotone ph-shield-plus text-6xl text-cyber-400 animate-pulse"></i>
+            </div>
+            <h2 class="text-cyber-400 font-bold tracking-widest uppercase text-xs sm:text-sm mb-2">OCR A A-Level Biology • Chapter 12</h2>
+            <h1 class="font-display text-4xl sm:text-6xl font-extrabold text-white mb-4 tracking-tight">Communicable Diseases</h1>
+            <p class="text-bio-200 font-bold tracking-widest uppercase text-xs sm:text-sm mb-6 bg-bio-900/70 px-5 py-1.5 rounded-full border border-bio-500/50 shadow-inner">Created by Mr Reeve</p>
+            <p class="text-slate-300 font-medium mb-8 text-base sm:text-lg max-w-xl leading-relaxed">
+                Master pathogens, plant &amp; animal defences, specific immunity, vaccination, and medicines with mark-scheme precision.
+            </p>
+
+            <button onclick="enterApp()" class="bg-gradient-to-r from-cyber-600 to-bio-600 hover:from-cyber-500 hover:to-bio-500 text-white font-bold text-lg sm:text-xl py-4 px-10 rounded-full shadow-[0_0_25px_rgba(16,185,129,0.45)] transition-all transform hover:scale-105 hover:-translate-y-0.5 flex items-center gap-3 border border-cyber-400/50">
+                <i class="ph-bold ph-play-circle text-2xl"></i> Start Revision Lab
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN STICKY HEADER -->
+    <header class="bg-white shadow-md z-40 sticky top-0 border-b border-slate-200 hidden" id="app-header">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-cyber-900 p-2.5 rounded-xl text-cyber-400 shadow-inner border border-cyber-500/30">
+                    <i class="ph-fill ph-shield-plus text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-display font-bold text-xl text-cyber-900 leading-tight">Communicable Diseases</h1>
+                    <p class="text-cyber-600 text-xs font-bold uppercase tracking-wider">OCR A A-Level Biology • Ch. 12</p>
+                </div>
+            </div>
+
+            <!-- Gamified Bio-Shield Streak Counter -->
+            <div id="streak-container" class="bg-slate-50 border border-slate-200 px-4 py-1.5 rounded-full flex items-center gap-3 shadow-sm">
+                <span id="streak-icon" class="text-2xl text-bio-600 inline-flex items-center justify-center transition-transform duration-200">
+                    <i class="ph-fill ph-shield-check"></i>
+                </span>
+                <span class="text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wide">
+                    Immune Streak: <span id="streak-counter" class="text-xl text-cyber-600 font-black ml-1">0</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex overflow-x-auto bg-slate-50 border-t border-slate-200 shadow-inner">
+            <div class="max-w-7xl mx-auto w-full flex">
+                <button onclick="switchTab('match')" id="nav-match" class="tab-btn active flex items-center gap-2 px-5 py-3.5 font-bold text-sm whitespace-nowrap text-slate-600 hover:bg-slate-100">
+                    <i class="ph-bold ph-arrows-merge text-lg"></i> Mix &amp; Match
+                </button>
+                <button onclick="switchTab('quiz')" id="nav-quiz" class="tab-btn flex items-center gap-2 px-5 py-3.5 font-bold text-sm whitespace-nowrap text-slate-600 hover:bg-slate-100">
+                    <i class="ph-bold ph-list-checks text-lg"></i> Knowledge Quiz
+                </button>
+                <button onclick="switchTab('long')" id="nav-long" class="tab-btn flex items-center gap-2 px-5 py-3.5 font-bold text-sm whitespace-nowrap text-slate-600 hover:bg-slate-100">
+                    <i class="ph-bold ph-pen-nib text-lg"></i> 6-Mark Questions
+                </button>
+                <button onclick="switchTab('process')" id="nav-process" class="tab-btn flex items-center gap-2 px-5 py-3.5 font-bold text-sm whitespace-nowrap text-slate-600 hover:bg-slate-100">
+                    <i class="ph-bold ph-list-numbers text-lg"></i> Process Sorter
+                </button>
+                <button onclick="switchTab('resources')" id="nav-resources" class="tab-btn flex items-center gap-2 px-5 py-3.5 font-bold text-sm whitespace-nowrap text-slate-600 hover:bg-slate-100">
+                    <i class="ph-bold ph-flask text-lg"></i> Exam Prep &amp; PAGs
+                </button>
+                <button onclick="switchTab('dash')" id="nav-dash" class="tab-btn flex items-center gap-2 px-5 py-3.5 font-bold text-sm whitespace-nowrap text-slate-600 hover:bg-slate-100">
+                    <i class="ph-bold ph-chart-polar text-lg"></i> Dashboard
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow max-w-6xl mx-auto w-full p-4 sm:p-6 pb-24 hidden relative" id="main-content">
+
+        <!-- TAB 1: MIX & MATCH (18 Marks) -->
+        <div id="tab-match" class="tab-content active animate-slide-in">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+                <div class="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="font-display text-2xl font-bold text-cyber-900 flex items-center gap-2">
+                            <i class="ph-fill ph-arrows-merge text-cyber-600"></i> Key Terminology
+                        </h2>
+                        <p class="text-slate-500 text-sm mt-1">Match the OCR A Chapter 12 terms to their exact definitions. (Round <span id="match-round" class="font-bold text-cyber-700">1</span> of 3)</p>
+                    </div>
+                    <div class="font-bold text-cyber-900 bg-slate-100 border border-slate-200 px-4 py-2 rounded-xl self-start sm:self-auto">
+                        Score: <span id="match-score" class="text-bio-600">0</span> / 18
+                    </div>
+                </div>
+
+                <div id="match-complete" class="hidden text-center py-12 bg-bio-50 border border-bio-500 rounded-2xl text-bio-900">
+                    <i class="ph-fill ph-check-circle text-6xl mb-3 text-bio-600"></i>
+                    <h3 class="font-display text-2xl font-bold">Terminology Mastered!</h3>
+                    <p class="text-bio-700 text-sm mt-1">All 18 specification definitions matched accurately.</p>
+                </div>
+
+                <div id="match-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-3" id="match-col-q"></div>
+                    <div class="space-y-3" id="match-col-a"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: KNOWLEDGE QUIZ (30 Marks) -->
+        <div id="tab-quiz" class="tab-content animate-slide-in">
+            <div class="max-w-3xl mx-auto bg-cyber-900 p-6 sm:p-8 rounded-2xl shadow-xl text-white border-2 border-cyber-500/50">
+                <div class="mb-6 flex justify-between items-end border-b border-slate-700 pb-4">
+                    <div>
+                        <h2 class="font-display text-2xl font-bold flex items-center gap-2 text-cyber-400">
+                            <i class="ph-fill ph-list-checks"></i> Knowledge Quiz
+                        </h2>
+                        <p class="text-slate-300 text-sm mt-1">Mastery Loop: missed questions return at the end until you hit 30/30.</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-bio-400 font-bold uppercase tracking-wider">Mastered</div>
+                        <div class="text-3xl font-black text-white" id="quiz-progress">0 / 30</div>
+                    </div>
+                </div>
+
+                <div id="quiz-complete" class="hidden text-center py-10">
+                    <i class="ph-fill ph-seal-check text-7xl text-bio-400 mb-4 animate-bounce"></i>
+                    <h3 class="font-display text-3xl font-bold mb-2">100% Quiz Mastery!</h3>
+                    <p class="text-slate-300">You conquered all 30 Chapter 12 multiple-choice questions.</p>
+                </div>
+
+                <div id="quiz-container">
+                    <div id="quiz-retry-badge" class="hidden inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-400/40 px-3 py-1 rounded-full mb-4">
+                        <i class="ph-bold ph-arrows-clockwise"></i> Retry Queue Review
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-semibold mb-6 leading-relaxed" id="quiz-question">Loading...</h3>
+                    <div class="space-y-3" id="quiz-options"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: 6-MARK QUESTIONS (36 Marks) -->
+        <div id="tab-long" class="tab-content animate-slide-in">
+            <div class="mb-6 border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-2">
+                <div>
+                    <h2 class="font-display text-2xl font-bold text-cyber-900 flex items-center gap-2">
+                        <i class="ph-fill ph-pen-nib text-cyber-600"></i> 6-Mark Extended Response
+                    </h2>
+                    <p class="text-slate-500 text-sm mt-1">Write your response, submit to reveal leveled OCR A model answers, and self-assess (0–6 marks).</p>
+                </div>
+                <div class="font-bold text-cyber-900 bg-white border border-slate-200 px-4 py-2 rounded-xl self-start sm:self-auto">
+                    Score: <span id="long-score-live" class="text-bio-600">0</span> / 36
+                </div>
+            </div>
+            <div id="long-list" class="space-y-8"></div>
+        </div>
+
+        <!-- TAB 4: INTERACTIVE PROCESS SORTER (10 Marks) -->
+        <div id="tab-process" class="tab-content animate-slide-in">
+            <div class="mb-6 border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
+                <div>
+                    <h2 class="font-display text-2xl font-bold text-cyber-900 flex items-center gap-2">
+                        <i class="ph-fill ph-list-numbers text-bio-600"></i> Immune Process Sorter
+                    </h2>
+                    <p class="text-slate-500 text-sm mt-1">Arrange each 5-step mechanism into the exact chronological order. Drag cards, tap two cards to swap, or use the ▲/▼ buttons.</p>
+                </div>
+                <div class="font-bold text-cyber-900 bg-white border border-slate-200 px-4 py-2 rounded-xl self-start sm:self-auto">
+                    Score: <span id="process-score" class="text-bio-600">0</span> / 10
+                </div>
+            </div>
+
+            <!-- Stage Switcher -->
+            <div class="flex gap-3 mb-6">
+                <button onclick="showProcessStage(0)" id="proc-tab-0" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cyber-600 bg-cyber-600 text-white shadow-sm transition-all">
+                    Stage 1: Phagocytosis &amp; APCs (5 Marks)
+                </button>
+                <button onclick="showProcessStage(1)" id="proc-tab-1" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm border-2 border-slate-200 bg-white text-slate-700 hover:border-cyber-500 transition-all">
+                    Stage 2: Humoral Immune Response (5 Marks)
+                </button>
+            </div>
+
+            <!-- Stage 1 Container -->
+            <div id="process-stage-0" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                    <div>
+                        <h3 class="font-display font-bold text-lg text-cyber-900">Stage 1: Phagocytosis &amp; Antigen Presentation</h3>
+                        <p class="text-xs text-slate-500">Order the 5 steps from initial pathogen detection to T helper cell activation.</p>
+                    </div>
+                    <span id="stage-0-badge" class="text-xs font-bold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200 self-start sm:self-auto">0 / 5 Locked</span>
+                </div>
+
+                <div id="sort-list-0" class="space-y-3 mb-6"></div>
+
+                <div id="sort-feedback-0" class="hidden mb-4 p-3 rounded-xl text-sm font-semibold"></div>
+
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="checkProcessOrder(0)" id="check-btn-0" class="bg-cyber-600 hover:bg-cyber-700 text-white font-bold py-3 px-6 rounded-xl shadow transition-colors flex items-center gap-2">
+                        <i class="ph-bold ph-check-circle text-lg"></i> Check Stage 1 Order
+                    </button>
+                    <button onclick="showProcessStage(1)" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3 px-5 rounded-xl transition-colors flex items-center gap-2 ml-auto">
+                        Next Stage <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stage 2 Container -->
+            <div id="process-stage-1" class="hidden bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                    <div>
+                        <h3 class="font-display font-bold text-lg text-cyber-900">Stage 2: Humoral Response (Clonal Selection &amp; Expansion)</h3>
+                        <p class="text-xs text-slate-500">Order the 5 steps from B-cell selection to antibody-mediated pathogen destruction.</p>
+                    </div>
+                    <span id="stage-1-badge" class="text-xs font-bold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200 self-start sm:self-auto">0 / 5 Locked</span>
+                </div>
+
+                <div id="sort-list-1" class="space-y-3 mb-6"></div>
+
+                <div id="sort-feedback-1" class="hidden mb-4 p-3 rounded-xl text-sm font-semibold"></div>
+
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="checkProcessOrder(1)" id="check-btn-1" class="bg-bio-600 hover:bg-bio-700 text-white font-bold py-3 px-6 rounded-xl shadow transition-colors flex items-center gap-2">
+                        <i class="ph-bold ph-check-circle text-lg"></i> Check Stage 2 Order
+                    </button>
+                    <button onclick="showProcessStage(0)" class="bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3 px-5 rounded-xl transition-colors flex items-center gap-2 ml-auto">
+                        <i class="ph-bold ph-arrow-left"></i> Back to Stage 1
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: EXAM PREP & REQUIRED PRACTICALS (PAGs) -->
+        <div id="tab-resources" class="tab-content animate-slide-in">
+            <div class="mb-6 border-b border-slate-200 pb-4">
+                <h2 class="font-display text-2xl font-bold text-cyber-900 flex items-center gap-2">
+                    <i class="ph-fill ph-flask text-cyber-600"></i> Exam Prep &amp; Required Practicals
+                </h2>
+                <p id="resources-intro" class="text-slate-500 text-sm mt-1">Complete your reflection action plan to unlock external revision resources, PAG videos, and practical reminders (up to +6 bonus marks).</p>
+            </div>
+
+            <!-- Action Plan Gate -->
+            <div id="action-plan-section" class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 mb-6">
+                <h3 class="font-display text-xl font-bold text-cyber-900 mb-2">Identify how you will improve your score:</h3>
+                <p class="text-sm text-slate-500 mb-6">Select at least two meaningful next steps (+3 bonus marks per valid action, capped at +6 marks so your total is out of 100).</p>
+
+                <div class="space-y-4 mb-6">
+                    <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
+                        <input type="checkbox" id="chk-pastPapers" onchange="toggleAction('pastPapers')" class="w-5 h-5 accent-cyber-600 rounded border-slate-300">
+                        <span class="font-medium text-slate-800">Complete OCR A Module 4.1.1 past paper questions</span>
+                    </label>
+
+                    <label class="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-slate-50">
+                        <input type="checkbox" id="chk-rewatchPAGs" onchange="toggleAction('rewatchPAGs')" class="w-5 h-5 accent-cyber-600 rounded border-slate-300">
+                        <span class="font-medium text-slate-800">Rewatch PAG 1 (Blood Smear) &amp; PAG 7 (Aseptic Technique) demos</span>
+                    </label>
+
+                    <div class="p-2 rounded-lg hover:bg-slate-50">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" id="chk-flashcards" onchange="toggleAction('flashcards')" class="w-5 h-5 accent-cyber-600 rounded border-slate-300">
+                            <span class="font-medium text-slate-800">Create flashcards based on a weak 6-mark question</span>
+                        </label>
+                        <div id="input-flashcards" class="hidden ml-8 mt-2">
+                            <input type="text" id="val-flashcards" placeholder="Which 6-mark topic was weakest?" class="w-full sm:w-2/3 p-2.5 border border-slate-300 rounded-lg outline-none focus:border-cyber-600 text-sm">
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded-lg hover:bg-slate-50">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" id="chk-glossary" onchange="toggleAction('glossary')" class="w-5 h-5 accent-cyber-600 rounded border-slate-300">
+                            <span class="font-medium text-slate-800">Write a glossary of key immunology terms &amp; definitions</span>
+                        </label>
+                        <div id="input-glossary" class="hidden ml-8 mt-2">
+                            <input type="text" id="val-glossary" placeholder="Name 3 words you struggled with (e.g., opsonin, callose, perforin)..." class="w-full sm:w-2/3 p-2.5 border border-slate-300 rounded-lg outline-none focus:border-cyber-600 text-sm">
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded-lg hover:bg-slate-50">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" id="chk-copyWork" onchange="toggleAction('copyWork')" class="w-5 h-5 accent-cyber-600 rounded border-slate-300">
+                            <span class="font-medium text-slate-800">Copy up missed class notes</span>
+                        </label>
+                        <div id="input-copyWork" class="hidden ml-8 mt-2 flex flex-col sm:flex-row gap-2">
+                            <input type="text" id="val-copyWho" placeholder="Who will you copy from?" class="w-full sm:w-1/3 p-2.5 border border-slate-300 rounded-lg outline-none focus:border-cyber-600 text-sm">
+                            <input type="date" id="val-copyDate" class="w-full sm:w-1/3 p-2.5 border border-slate-300 rounded-lg outline-none focus:border-cyber-600 text-sm text-slate-600">
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded-lg hover:bg-slate-50">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" id="chk-seeTeacher" onchange="toggleAction('seeTeacher')" class="w-5 h-5 accent-cyber-600 rounded border-slate-300">
+                            <span class="font-medium text-slate-800">Approach my teacher independently for help</span>
+                        </label>
+                        <div id="input-seeTeacher" class="hidden ml-8 mt-2">
+                            <input type="date" id="val-seeTeacher" class="w-full sm:w-1/3 p-2.5 border border-slate-300 rounded-lg outline-none focus:border-cyber-600 text-sm text-slate-600">
+                        </div>
+                    </div>
+
+                    <label class="flex items-center gap-3 cursor-pointer mt-4 pt-4 border-t border-slate-200 p-2">
+                        <input type="checkbox" id="chk-none" onchange="toggleAction('none')" class="w-5 h-5 accent-alert-600 rounded border-slate-300">
+                        <span class="font-bold text-slate-500">None of the above</span>
+                    </label>
+                </div>
+
+                <button onclick="submitActionPlan()" class="bg-cyber-600 hover:bg-cyber-700 text-white font-bold py-3.5 px-7 rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 w-full sm:w-auto">
+                    Submit Action Plan &amp; Unlock Resources <i class="ph-bold ph-lock-open"></i>
+                </button>
+            </div>
+
+            <!-- Unlocked Resource Grid -->
+            <div id="resources-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+                <!-- PMT Module 4 -->
+                <a href="https://www.physicsandmathstutor.com/biology-revision/a-level-ocr-a/module-4/" target="_blank" rel="noopener noreferrer" class="bg-white p-6 rounded-2xl border-2 border-slate-200 hover:border-cyber-600 transition-colors group shadow-sm flex flex-col items-center text-center">
+                    <div class="bg-cyber-500/10 p-4 rounded-full mb-4 text-cyber-600 group-hover:scale-110 transition-transform"><i class="ph-fill ph-exam text-4xl"></i></div>
+                    <h3 class="font-display font-bold text-xl mb-2 text-cyber-900">Physics &amp; Maths Tutor</h3>
+                    <p class="text-sm text-slate-500 mb-4">Official OCR A Module 4.1.1 past paper questions, mark schemes, and summary notes.</p>
+                    <span class="text-cyber-600 font-bold text-sm uppercase tracking-wider flex items-center gap-1 mt-auto">Open Resource <i class="ph-bold ph-arrow-up-right"></i></span>
+                </a>
+
+                <!-- Bozeman Science: Immune System -->
+                <a href="https://www.youtube.com/watch?v=z3M0vU3Dv8E" target="_blank" rel="noopener noreferrer" class="bg-white p-6 rounded-2xl border-2 border-slate-200 hover:border-alert-600 transition-colors group shadow-sm flex flex-col items-center text-center">
+                    <div class="bg-rose-50 p-4 rounded-full mb-4 text-alert-600 group-hover:scale-110 transition-transform"><i class="ph-fill ph-youtube-logo text-4xl"></i></div>
+                    <h3 class="font-display font-bold text-xl mb-2 text-cyber-900">Bozeman Science</h3>
+                    <p class="text-sm text-slate-500 mb-4">Clear visual walkthrough of non-specific, humoral, and cell-mediated immunity.</p>
+                    <span class="text-alert-600 font-bold text-sm uppercase tracking-wider flex items-center gap-1 mt-auto">Watch Video <i class="ph-bold ph-arrow-up-right"></i></span>
+                </a>
+
+                <!-- Freesciencelessons: Immunity -->
+                <a href="https://www.youtube.com/results?search_query=freesciencelessons+a+level+biology+communicable+diseases+immune+response" target="_blank" rel="noopener noreferrer" class="bg-white p-6 rounded-2xl border-2 border-slate-200 hover:border-bio-600 transition-colors group shadow-sm flex flex-col items-center text-center">
+                    <div class="bg-bio-50 p-4 rounded-full mb-4 text-bio-600 group-hover:scale-110 transition-transform"><i class="ph-fill ph-video text-4xl"></i></div>
+                    <h3 class="font-display font-bold text-xl mb-2 text-cyber-900">FSL: Immunity &amp; Pathogens</h3>
+                    <p class="text-sm text-slate-500 mb-4">Concise A-Level revision videos targeting phagocytosis, antibodies, and vaccination.</p>
+                    <span class="text-bio-600 font-bold text-sm uppercase tracking-wider flex items-center gap-1 mt-auto">Watch Videos <i class="ph-bold ph-arrow-up-right"></i></span>
+                </a>
+
+                <!-- PAG 7 Video Demo -->
+                <a href="https://www.youtube.com/results?search_query=OCR+A+level+biology+PAG+7+aseptic+technique+antibiotics" target="_blank" rel="noopener noreferrer" class="bg-white p-6 rounded-2xl border-2 border-slate-200 hover:border-indigo-500 transition-colors group shadow-sm flex flex-col items-center text-center">
+                    <div class="bg-indigo-50 p-4 rounded-full mb-4 text-indigo-600 group-hover:scale-110 transition-transform"><i class="ph-fill ph-play-circle text-4xl"></i></div>
+                    <h3 class="font-display font-bold text-xl mb-2 text-cyber-900">PAG 7 Video Demo</h3>
+                    <p class="text-sm text-slate-500 mb-4">Practical demonstration of aseptic technique and antimicrobial disc diffusion.</p>
+                    <span class="text-indigo-600 font-bold text-sm uppercase tracking-wider flex items-center gap-1 mt-auto">Watch Demo <i class="ph-bold ph-arrow-up-right"></i></span>
+                </a>
+
+                <!-- PAG 1 Reminder Modal Trigger -->
+                <div class="bg-white p-6 rounded-2xl border-2 border-slate-200 hover:border-cyber-600 transition-colors group shadow-sm flex flex-col items-center text-center">
+                    <div class="bg-cyan-50 p-4 rounded-full mb-4 text-cyber-600 group-hover:scale-110 transition-transform"><i class="ph-fill ph-microscope text-4xl"></i></div>
+                    <h3 class="font-display font-bold text-xl mb-2 text-cyber-900">PAG 1 Reminder:<br>Blood Smear Microscopy</h3>
+                    <p class="text-sm text-slate-500 mb-4">Review how to identify neutrophils, lymphocytes, and draw high-power diagrams.</p>
+                    <button onclick="openModal('pag-blood-modal')" class="mt-auto text-white bg-cyber-600 hover:bg-cyber-700 py-2.5 rounded-xl font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 w-full transition-colors">
+                        <i class="ph-bold ph-book-open"></i> Read PAG 1 Guide
+                    </button>
+                </div>
+
+                <!-- PAG 7 Reminder Modal Trigger -->
+                <div class="bg-white p-6 rounded-2xl border-2 border-slate-200 hover:border-bio-600 transition-colors group shadow-sm flex flex-col items-center text-center">
+                    <div class="bg-bio-50 p-4 rounded-full mb-4 text-bio-600 group-hover:scale-110 transition-transform"><i class="ph-fill ph-petri-dish text-4xl"></i></div>
+                    <h3 class="font-display font-bold text-xl mb-2 text-cyber-900">PAG 7 Reminder:<br>Antimicrobial Discs</h3>
+                    <p class="text-sm text-slate-500 mb-4">Review variables, aseptic technique, and zone of inhibition calculations (πr²).</p>
+                    <button onclick="openModal('pag-microbe-modal')" class="mt-auto text-white bg-bio-600 hover:bg-bio-700 py-2.5 rounded-xl font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 w-full transition-colors">
+                        <i class="ph-bold ph-book-open"></i> Read PAG 7 Guide
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 6: DASHBOARD & REPORT GENERATOR -->
+        <div id="tab-dash" class="tab-content animate-slide-in">
+            <div class="max-w-3xl mx-auto bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-200 relative overflow-hidden">
+                <i class="ph-duotone ph-shield-plus text-[15rem] absolute -top-10 -right-10 text-slate-100 pointer-events-none"></i>
+
+                <h2 class="font-display text-3xl font-bold text-cyber-900 mb-2 relative z-10">Revision Dashboard</h2>
+                <p class="text-sm text-slate-500 mb-8 border-b border-slate-200 pb-4 relative z-10">Core sections total 94 marks. Completing 2 reflection actions in Exam Prep adds +6 bonus marks for a total out of 100.</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 relative z-10">
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 mb-2">
+                            <i class="ph-fill ph-arrows-merge text-cyber-600 text-lg"></i> Mix &amp; Match
+                        </div>
+                        <div class="text-3xl font-black text-cyber-900"><span id="dash-match">0</span> <span class="text-lg text-slate-400 font-medium">/ 18</span></div>
+                    </div>
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 mb-2">
+                            <i class="ph-fill ph-list-checks text-bio-600 text-lg"></i> Knowledge Quiz
+                        </div>
+                        <div class="text-3xl font-black text-cyber-900"><span id="dash-quiz">0</span> <span class="text-lg text-slate-400 font-medium">/ 30</span></div>
+                    </div>
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 mb-2">
+                            <i class="ph-fill ph-pen-nib text-indigo-600 text-lg"></i> 6-Mark Questions
+                        </div>
+                        <div class="text-3xl font-black text-cyber-900"><span id="dash-long">0</span> <span class="text-lg text-slate-400 font-medium">/ 36</span></div>
+                    </div>
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 mb-2">
+                            <i class="ph-fill ph-list-numbers text-amber-500 text-lg"></i> Process Sorter
+                        </div>
+                        <div class="text-3xl font-black text-cyber-900"><span id="dash-process">0</span> <span class="text-lg text-slate-400 font-medium">/ 10</span></div>
+                    </div>
+                </div>
+
+                <div class="bg-bio-50 border border-bio-200 rounded-2xl p-4 mb-8 flex items-center justify-between relative z-10">
+                    <div class="flex items-center gap-2 text-sm font-bold text-bio-900">
+                        <i class="ph-fill ph-sparkle text-bio-600 text-xl"></i> Reflection Action Plan Bonus
+                    </div>
+                    <div class="text-xl font-black text-bio-700">+<span id="dash-bonus">0</span> <span class="text-sm font-semibold text-bio-600">/ 6</span></div>
+                </div>
+
+                <button onclick="openModal('name-modal')" class="w-full bg-gradient-to-r from-cyber-600 to-bio-600 hover:from-cyber-700 hover:to-bio-700 text-white font-bold uppercase tracking-widest py-4 rounded-xl shadow-lg transition-transform transform hover:-translate-y-0.5 text-base sm:text-lg flex justify-center items-center gap-3 relative z-10">
+                    <i class="ph-bold ph-printer text-2xl"></i> Generate Mark Report
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- NAME VERIFICATION MODAL -->
+    <div id="name-modal" class="fixed inset-0 bg-cyber-950/80 z-[60] hidden items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white p-8 rounded-2xl max-w-sm w-full shadow-2xl relative border-t-8 border-cyber-600 animate-slide-in text-center">
+            <i class="ph-fill ph-student text-5xl text-cyber-700 mb-2"></i>
+            <h2 class="font-display text-2xl font-bold text-cyber-900 mb-2">Student Verification</h2>
+            <p class="text-slate-500 font-medium mb-5 text-sm">Enter your full name for the official screenshot report.</p>
+            <input type="text" id="student-name-input" class="w-full p-3 border-2 rounded-xl outline-none transition-colors border-slate-200 focus:border-cyber-600 mb-2 bg-slate-50 text-center font-bold text-lg text-cyber-900" placeholder="Your Name">
+            <p id="name-error" class="text-xs font-bold text-alert-600 mb-4 hidden">Please enter your name before generating the report.</p>
+            <button onclick="generateScorecard()" class="w-full py-3 bg-cyber-600 hover:bg-cyber-700 text-white rounded-xl transition-colors font-bold shadow-md mt-2">Generate Report</button>
+            <button onclick="closeModals()" class="mt-3 text-sm text-slate-400 hover:text-slate-600 font-medium">Cancel</button>
+        </div>
+    </div>
+
+    <!-- SCORECARD REPORT MODAL -->
+    <div id="scorecard-modal" class="fixed inset-0 bg-cyber-950/90 z-[60] hidden items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-white p-6 sm:p-8 rounded-3xl max-w-md w-full shadow-[0_0_50px_rgba(6,182,212,0.3)] relative border-4 border-cyber-500 max-h-[95vh] overflow-y-auto animate-slide-in">
+            // 30 High-Challenge OCR A Multiple Choice Questions (balanced option lengths)
+            quiz: [
+                {
+                    q: "Which pathogen causes potato and tomato late blight?",
+                    options: [
+                        "Phytophthora infestans (a protoctist)",
+                        "Clavibacter michiganensis (a bacterium)",
+                        "Mycosphaerella fijiensis (a fungus)",
+                        "Tobacco mosaic virus (a plant virus)"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "Ring rot in potatoes and tomatoes is caused by which type of pathogen?",
+                    options: [
+                        "A bacterium that damages vascular tissue",
+                        "A fungus that digests cellulose cell walls",
+                        "A virus that inhibits chloroplast synthesis",
+                        "A protoctist transmitted by feeding aphids"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "Which of the following diseases is caused by a fungus in plants?",
+                    options: [
+                        "Black Sigatoka disease in banana plants",
+                        "Tobacco mosaic disease in tomato plants",
+                        "Late blight disease in potato tubers",
+                        "Bacterial ring rot in potato crops"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "How is Plasmodium (the pathogen causing malaria) transmitted between humans?",
+                    options: [
+                        "Indirectly via the female Anopheles mosquito",
+                        "Directly via airborne droplets from coughing",
+                        "Indirectly via contaminated drinking water",
+                        "Directly via prolonged skin-to-skin contact"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "Why does HIV lead to AIDS if left untreated?",
+                    options: [
+                        "It destroys T helper cells, severely weakening the specific immune response",
+                        "It destroys red blood cells, severely reducing oxygen transport to tissues",
+                        "It destroys bone marrow stem cells, halting platelet and fibrin production",
+                        "It destroys neutrophil lysosomes, preventing non-specific bacterial lysis"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "Which of the following is an ACTIVE (induced) physical defence in plants?",
+                    options: [
+                        "Deposition of callose in sieve plates and plasmodesmata",
+                        "Presence of a thick waterproof waxy cuticle on leaves",
+                        "Presence of tough outer bark covering woody plant stems",
+                        "Presence of rigid cellulose cell walls around plant cells"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "How do plant chitinases defend against fungal pathogens?",
+                    options: [
+                        "They hydrolyse chitin within invading fungal cell walls",
+                        "They dissolve the lipid envelope surrounding plant viruses",
+                        "They cross-link lignin fibres inside damaged xylem vessels",
+                        "They digest peptidoglycan inside bacterial cell walls"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "During blood clotting, what is the role of thromboplastin released by damaged platelets?",
+                    options: [
+                        "With Ca2+ ions, it converts inactive prothrombin into active thrombin",
+                        "With Ca2+ ions, it converts soluble fibrinogen into insoluble fibrin",
+                        "With Na+ ions, it triggers vasodilation to increase wound blood flow",
+                        "With K+ ions, it stimulates mast cells to secrete local histamines"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "What is the role of thrombin in the blood clotting cascade?",
+                    options: [
+                        "Catalyses the conversion of soluble fibrinogen into insoluble fibrin",
+                        "Catalyses the conversion of insoluble fibrin into soluble fibrinogen",
+                        "Stimulates damaged platelets to release thromboplastin and serotonin",
+                        "Binds directly to bacterial antigens to cause rapid agglutination"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "During the inflammatory response, mast cells release histamines. What is the direct effect of histamines?",
+                    options: [
+                        "Vasodilation and increased capillary permeability to admit phagocytes",
+                        "Vasoconstriction and reduced capillary permeability to limit bleeding",
+                        "Immediate stimulation of plasma cells to secrete specific antibodies",
+                        "Rapid apoptosis of damaged epithelial cells around the infected site"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "Which feature allows you to distinguish a neutrophil from a lymphocyte under a light microscope?",
+                    options: [
+                        "A multi-lobed nucleus paired with noticeably granular cytoplasm",
+                        "A single large round nucleus filling nearly the entire cell volume",
+                        "A biconcave disc shape lacking both a nucleus and mitochondria",
+                        "A kidney-shaped nucleus surrounded by abundant smooth cytoplasm"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "Why do macrophages play a crucial link between the non-specific and specific immune responses?",
+                    options: [
+                        "They display foreign antigens on MHC proteins to act as APCs",
+                        "They secrete specific antibodies immediately after phagocytosis",
+                        "They migrate to the thymus to differentiate into T killer cells",
+                        "They release histamines to initiate clotting and inflammation"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "Which bonds hold the four polypeptide chains of an antibody molecule together?",
+                    options: [
+                        "Disulfide bridges",
+                        "Glycosidic bonds",
+                        "Phosphodiester bonds",
+                        "Peptide cross-links"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "What is the function of the hinge region in an antibody molecule?",
+                    options: [
+                        "Gives flexibility to bind antigens at varying distances apart",
+                        "Binds directly to phagocyte receptors to trigger endocytosis",
+                        "Provides a unique tertiary shape complementary to one antigen",
+                        "Neutralises bacterial toxins by hydrolysing their peptide bonds"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "Why is the variable region of an antibody specific to only one type of antigen?",
+                    options: [
+                        "Unique amino acid sequence giving a tertiary structure complementary to the antigen",
+                        "Unique DNA base sequence allowing direct base-pairing with the pathogen's genome",
+                        "Flexible lipid bilayer domain that moulds randomly around any invading pathogen",
+                        "Constant carbohydrate chain that covalently bonds to bacterial peptidoglycan"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "How do antibodies cause neutralisation of bacterial toxins?",
+                    options: [
+                        "Binding to toxins so they can no longer attach to host cell receptors",
+                        "Releasing perforin to punch pores through the toxin's lipid membrane",
+                        "Raising local blood pH so the toxin's tertiary structure denatures",
+                        "Engulfing the soluble toxins by endocytosis into a phagolysosome"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "Where do T lymphocytes mature in the human body?",
+                    options: [
+                        "The thymus gland",
+                        "The bone marrow",
+                        "The lymph nodes",
+                        "The human spleen"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "What is the primary role of T regulatory cells?",
+                    options: [
+                        "Suppressing the immune response after clearance to prevent autoimmunity",
+                        "Secreting interleukins to stimulate B cell clonal expansion and mitosis",
+                        "Releasing perforin to destroy host cells infected by intracellular viruses",
+                        "Remaining in circulation for decades to mount a rapid secondary response"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "Which statement accurately describes the secondary immune response compared to the primary response?",
+                    options: [
+                        "Shorter lag phase and higher antibody concentration due to memory cells",
+                        "Longer lag phase because macrophages must re-select dormant memory cells",
+                        "Lower antibody concentration because the pathogen is already attenuated",
+                        "Faster response relying exclusively on neutrophils rather than plasma cells"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "In Type 1 diabetes, the immune system destroys insulin-secreting beta cells in the pancreas. What type of condition is this?",
+                    options: [
+                        "An autoimmune disease",
+                        "A bacterial infection",
+                        "Artificial immunity",
+                        "An allergic reaction"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "A traveller bitten by a venomous snake is injected with antivenom containing pre-formed antibodies. What type of immunity is this?",
+                    options: [
+                        "Artificial passive immunity",
+                        "Artificial active immunity",
+                        "Natural passive immunity",
+                        "Natural active immunity"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "Why does passive immunity only provide short-term protection?",
+                    options: [
+                        "No memory cells are produced and the received antibodies are gradually broken down",
+                        "Injected antibodies mutate into foreign antigens after roughly two to three weeks",
+                        "Received antibodies are excreted unchanged by the kidneys within forty-eight hours",
+                        "Memory cells formed during passive immunity are swiftly destroyed by T killer cells"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "What is 'ring vaccination'?",
+                    options: [
+                        "Vaccinating people in the immediate vicinity of an outbreak to contain spread",
+                        "Applying a circular ring of topical antibiotics around an infected skin wound",
+                        "Vaccinating only infants born within a defined circular geographical boundary",
+                        "Administering an updated booster dose annually to counter antigenic variation"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "Why must the influenza vaccine be updated and re-administered every year?",
+                    options: [
+                        "Rapid mutation alters surface antigens so existing memory cells cannot recognise it",
+                        "Influenza antibodies are rapidly hydrolysed by digestive enzymes within twelve months",
+                        "The seasonal vaccine only confers short-term passive immunity without memory cells",
+                        "The influenza bacterium develops resistance to standard vaccine adjuvants each year"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "Why are antibiotics completely ineffective against viral infections such as influenza or HIV?",
+                    options: [
+                        "Viruses lack bacterial cell walls, ribosomes, and independent metabolic pathways",
+                        "Viruses are physically too large for small antibiotic molecules to penetrate",
+                        "Viruses synthesise beta-lactamase enzymes that hydrolyse all common antibiotics",
+                        "Antibiotics only bind to chitin cell walls found in eukaryotic fungal pathogens"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "How does overuse or failure to complete a course of antibiotics accelerate the evolution of resistant bacteria like MRSA?",
+                    options: [
+                        "Selection pressure lets randomly mutated resistant bacteria survive and reproduce",
+                        "Antibiotics directly induce targeted mutations so bacteria adapt to the treatment",
+                        "Bacteria learn to pump out the drug and teach nearby cells through interleukins",
+                        "Antibiotics weaken human T killer cells so resistant strains multiply unchecked"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "Which heart drug was originally discovered from the foxglove plant (Digitalis purpurea)?",
+                    options: [
+                        "Digoxin",
+                        "Aspirin",
+                        "Quinine",
+                        "Morphine"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "Why is maintaining global biodiversity critical for future medicine discovery?",
+                    options: [
+                        "Undiscovered species may hold novel bioactive compounds for future drugs",
+                        "High biodiversity increases the mutation rate of human antibody genes",
+                        "Diverse ecosystems prevent all communicable pathogens from mutating",
+                        "Pharmaceuticals can only be extracted from wild plants, never synthesised"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "In PAG 7 (antimicrobial disc diffusion), why must the petri dish lid NOT be taped completely around the edge?",
+                    options: [
+                        "To allow oxygen entry and prevent the growth of harmful anaerobic bacteria",
+                        "To allow excess antibiotic vapour to escape safely inside the incubator",
+                        "To ensure warm condensation can drip evenly across the bacterial lawn",
+                        "To allow sufficient light to reach the agar for bacterial photosynthesis"
+                    ],
+                    ans: 0
+                },
+                {
+                    q: "During a bacterial infection, why do lymph nodes often become swollen and tender?",
+                    options: [
+                        "Rapid clonal expansion of specific B and T lymphocytes inside the nodes",
+                        "Widespread lysis of damaged erythrocytes accumulating inside the nodes",
+                        "Formation of large insoluble fibrin clots blocking the lymphatic ducts",
+                        "Deposition of callose and tyloses by pathogens inside the lymph vessels"
+                    ],
+                    ans: 0
+                }
+            ],
+
+            // 6 Classic OCR A 6-Mark Extended Response Questions
+            long: [
+                {
+                    q: "Describe the process of phagocytosis and explain how macrophages link the non-specific and specific immune responses. (6 marks)",
+                    low: "Phagocytes find bacteria and eat them. They put them in a bubble and use enzymes to kill them. Then they tell the white blood cells about the germs so antibodies can be made.",
+                    med: "Phagocytes are attracted to pathogens by chemicals. The phagocyte engulfs the pathogen by endocytosis to form a phagosome. Lysosomes fuse with the phagosome to release digestive enzymes that break down the pathogen. Macrophages then put the pathogen's antigens on their surface membrane to become antigen-presenting cells.",
+                    high: "1. Pathogens release chemoattractants; phagocytes recognise foreign antigens (enhanced by opsonins binding to phagocyte receptors).\n2. The phagocyte engulfs the pathogen by endocytosis, enclosing it in a membrane-bound vesicle called a phagosome.\n3. Lysosomes fuse with the phagosome to form a phagolysosome.\n4. Lysozymes (hydrolytic enzymes) are released to digest/hydrolyse the pathogen.\n5. Macrophages do not fully digest the pathogen; they combine the foreign antigens with MHC (Major Histocompatibility Complex) proteins.\n6. The MHC-antigen complex is displayed on the macrophage's cell surface membrane, forming an Antigen-Presenting Cell (APC) that activates complementary T helper cells."
+                },
+                {
+                    q: "Explain how the structure of an antibody molecule is related to its functions in the immune response. (6 marks)",
+                    low: "Antibodies are Y-shaped proteins. They have two arms that grab onto germs and stick them together. They have bonds holding them together and a bottom bit that attaches to phagocytes.",
+                    med: "Antibodies are made of four polypeptide chains (two heavy and two light) held together by disulfide bridges. The variable region has a specific shape complementary to one antigen so it can bind to it. The hinge region gives flexibility. Antibodies cause agglutination by clumping pathogens together and act as opsonins to help phagocytes engulf them.",
+                    high: "1. Made of 4 polypeptide chains (2 heavy, 2 light) held together by disulfide bridges to maintain quaternary structure.\n2. Variable region has a unique amino acid sequence/tertiary structure complementary to a specific antigen, forming an antigen-antibody complex.\n3. Two identical antigen-binding sites allow one antibody to bind two pathogens simultaneously, causing agglutination (clumping) for easier phagocytosis.\n4. Hinge region provides flexibility so the arms can bind antigens at different distances apart.\n5. Constant region is the same in all antibodies of the same class and binds to receptors on phagocytes (opsonisation).\n6. Can also bind to toxins (neutralisation/antitoxins) or block viral surface proteins to prevent entry into host cells."
+                },
+                {
+                    q: "Describe and explain the differences between the primary and secondary immune responses to a pathogen. (6 marks)",
+                    low: "The primary response is slow and you get sick because your body has to figure out how to make antibodies. The secondary response is much faster and makes more antibodies because of memory cells, so you don't feel ill.",
+                    med: "In the primary response, there is a lag phase before antibodies are produced because clonal selection and expansion take time. Antibody levels stay fairly low and drop quickly. In the secondary response, B and T memory cells recognise the antigen immediately. They divide rapidly into plasma cells, producing a much higher concentration of antibodies faster, destroying the pathogen before symptoms appear.",
+                    high: "1. Primary response has a long lag phase before antibodies appear because very few B/T lymphocytes have complementary receptors; clonal selection and expansion take time.\n2. Primary response produces a relatively low peak concentration of antibodies, which declines relatively quickly; host usually develops symptoms.\n3. During the primary response, B and T memory cells are produced and remain circulating in the blood.\n4. Upon re-exposure to the same antigen (secondary response), memory cells immediately recognise the antigen.\n5. Rapid clonal expansion and differentiation into plasma cells occurs, resulting in a much shorter lag phase.\n6. A far higher concentration of antibodies is produced and maintained for longer, destroying the pathogen before symptoms develop."
+                },
+                {
+                    q: "Explain how plants defend themselves against pathogens using both passive and active (induced) defences. (6 marks)",
+                    low: "Plants have bark and waxy leaves to stop germs getting in. If a germ gets in, the plant makes chemicals to kill it and blocks up its tubes so the disease cannot spread.",
+                    med: "Passive physical defences include waxy cuticles, bark, and cellulose cell walls that prevent pathogen entry. Active defences happen after infection: plants deposit callose between the cell wall and plasma membrane and in plasmodesmata to block spread. They also produce antimicrobial chemicals like phenols, alkaloids, and enzymes like chitinases that break down fungal cell walls.",
+                    high: "1. Passive physical barriers present before infection include cellulose cell walls, waxy cuticles (preventing water accumulation for fungal spores), bark, and stomatal closure.\n2. Active physical defences: callose (polysaccharide) is synthesised and deposited between the cell wall and plasma membrane, thickening the barrier.\n3. Callose is also deposited in plasmodesmata and phloem sieve plates to block pathogen movement between cells.\n4. Tyloses (balloon-like swellings) grow into xylem vessels to plug them and prevent pathogen transport.\n5. Active chemical defences: insect repellents, antimicrobial phenols/tannins/alkaloids/defensins, and phytoalexins that inhibit pathogen growth.\n6. Hydrolytic enzymes such as chitinases (hydrolyse fungal cell walls) and glucanases are produced, alongside an oxidative burst releasing reactive oxygen species."
+                },
+                {
+                    q: "Compare active and passive immunity, and explain how vaccination programmes achieve herd immunity. (6 marks)",
+                    low: "Active immunity is when your body makes its own antibodies, like from a vaccine or catching a disease. Passive is when you get antibodies from somewhere else, like a mother's milk. Herd immunity is when most people get vaccinated so the disease dies out.",
+                    med: "Active immunity involves exposure to an antigen so the body produces its own antibodies and memory cells, giving long-term protection (e.g., infection or vaccination). Passive immunity involves receiving pre-formed antibodies (e.g., across the placenta or antivenom); it acts immediately but is short-term as no memory cells are made. Herd immunity occurs when a high percentage of a population is vaccinated, reducing the number of susceptible hosts and stopping transmission to unvaccinated people.",
+                    high: "1. Active immunity requires exposure to an antigen; lymphocytes undergo clonal selection/expansion to produce their own antibodies and memory cells.\n2. Active immunity takes time to develop (lag phase) but provides long-term protection (natural = infection; artificial = vaccination).\n3. Passive immunity involves receiving ready-made antibodies from another organism (natural = placenta/colostrum; artificial = injection e.g., antivenom).\n4. Passive immunity gives immediate protection, but is short-term because no memory cells are formed and the foreign antibodies are eventually broken down.\n5. Herd immunity occurs when a sufficiently high proportion of a population is vaccinated against a communicable disease.\n6. This drastically reduces the probability of an infected person encountering a susceptible host, breaking the chain of transmission and protecting vulnerable/unvaccinated individuals."
+                },
+                {
+                    q: "Explain how antibiotic-resistant bacteria such as MRSA evolve, and suggest measures that can be taken to reduce the spread of antibiotic resistance. (6 marks)",
+                    low: "Bacteria mutate and become immune to antibiotics. The weak ones die and the strong ones live and reproduce. Doctors shouldn't give out antibiotics for colds, and people should finish their tablets and wash their hands.",
+                    med: "Random mutations in bacterial DNA can produce an allele for antibiotic resistance. When antibiotics are used, they act as a selection pressure: non-resistant bacteria die, while resistant bacteria survive, reproduce by binary fission, and pass on the resistance allele. To reduce this, doctors should only prescribe antibiotics for bacterial infections, patients must complete the full course, and hospitals must enforce strict hygiene and isolation.",
+                    high: "1. Random mutations occur in bacterial DNA (or plasmids), occasionally creating an allele that confers resistance to an antibiotic.\n2. Exposure to the antibiotic acts as a strong selection pressure.\n3. Non-resistant bacteria are killed, while resistant bacteria survive and reproduce rapidly (binary fission), increasing the frequency of the resistance allele in the population (and transferring plasmids via conjugation).\n4. Measure 1: Minimise unnecessary prescribing (never prescribe antibiotics for viral infections) and rotate different antibiotics.\n5. Measure 2: Patients must complete the full prescribed course so all partially resistant bacteria are eliminated.\n6. Measure 3: Strict infection control in hospitals (handwashing, alcohol gel, isolating infected patients) and reducing routine antibiotic use in agriculture."
+                }
+            ],
+
+            // Interactive Lab: 2 Stages of 5-Step Process Sorter (10 Marks total)
+            processes: [
+                {
+                    title: "Phagocytosis & Antigen Presentation",
+                    steps: [
+                        { id: 1, text: "Phagocyte moves towards the pathogen by chemotaxis and binds to opsonins/antigens on its surface." },
+                        { id: 2, text: "The phagocyte engulfs the pathogen by endocytosis, forming a membrane-bound phagosome." },
+                        { id: 3, text: "Lysosomes fuse with the phagosome to form a phagolysosome." },
+                        { id: 4, text: "Lysozymes (hydrolytic enzymes) digest the pathogen, leaving its antigens intact." },
+                        { id: 5, text: "The macrophage combines the antigens with MHC proteins and displays them on its surface membrane as an APC." }
+                    ]
+                },
+                {
+                    title: "Humoral Immune Response",
+                    steps: [
+                        { id: 1, text: "An Antigen-Presenting Cell (APC) binds to a T helper cell with a complementary CD4 receptor, activating it." },
+                        { id: 2, text: "A B lymphocyte with complementary surface antibodies binds the pathogen's antigen and presents it (clonal selection)." },
+                        { id: 3, text: "Activated T helper cells bind to the selected B cell and secrete interleukins (cytokines)." },
+                        { id: 4, text: "The stimulated B cell undergoes rapid mitosis (clonal expansion) and differentiates into plasma cells and B memory cells." },
+                        { id: 5, text: "Plasma cells secrete large quantities of specific antibodies that agglutinate, opsonise, or neutralise the pathogen." }
+                    ]
+                }
+            ]
+        };
+
+        // =========================================================================
+        // APPLICATION STATE
+        // =========================================================================
+        let state = {
+            match: { q: null, a: null, solved: [], batch: 0, qs: [], as: [] },
+            quiz: { queue: [], retry: [], current: null, correct: 0, isRetryRound: false },
+            long: { scores: {}, current: 0, answers: {} },
+            process: {
+                stages: [
+                    { order: [], locked: [false, false, false, false, false], score: 0 },
+                    { order: [], locked: [false, false, false, false, false], score: 0 }
+                ],
+                selectedSwap: null, // { stageIdx, posIdx }
+                dragSrcPos: null
+            },
+            streak: 0
+        };
+
+        let actionState = {
+            pastPapers: false,
+            rewatchPAGs: false,
+            flashcards: false,
+            glossary: false,
+            copyWork: false,
+            seeTeacher: false,
+            none: false,
+            flashcardTopic: "",
+            glossaryWords: "",
+            copyWho: "",
+            copyDate: "",
+            teacherDate: "",
+            submitted: false
+        };
+
+        // =========================================================================
+        // INITIALISATION & NAVIGATION
+        // =========================================================================
+        function enterApp() {
+            const splash = document.getElementById('splash-screen');
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.classList.add('hidden');
+                document.getElementById('app-header').classList.remove('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+                document.getElementById('main-body').classList.remove('overflow-hidden');
+                initApp();
+            }, 650);
+        }
+
+        function initApp() {
+            // 1. Setup Mix & Match
+            const mData = [...DATA.match].sort(() => Math.random() - 0.5);
+            state.match.qs = mData.map((m, i) => ({ t: m.q, id: i })).sort(() => Math.random() - 0.5);
+            state.match.as = mData.map((m, i) => ({ t: m.a, id: i })).sort(() => Math.random() - 0.5);
+            loadMatchBatch();
+
+            // 2. Setup Quiz (shuffled options + shuffled questions)
+            state.quiz.queue = DATA.quiz.map(q => {
+                const ansText = q.options[q.ans];
+                const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+                return { ...q, options: shuffled, ans: shuffled.indexOf(ansText) };
+            }).sort(() => Math.random() - 0.5);
+            nextQuiz();
+
+            // 3. Setup 6-Mark Questions
+            renderLong();
+
+            // 4. Setup Process Sorter (ensure initial order is genuinely scrambled)
+            [0, 1].forEach(stageIdx => {
+                let items = [...DATA.processes[stageIdx].steps];
+                do {
+                    items.sort(() => Math.random() - 0.5);
+                } while (items.every((item, idx) => item.id === idx + 1));
+                state.process.stages[stageIdx].order = items;
+                renderProcessStage(stageIdx);
+            });
+        }
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            document.getElementById(`nav-${id}`).classList.add('active');
+            document.getElementById(`tab-${id}`).classList.add('active');
+
+            if (id === 'dash') updateDashboard();
+        }
+
+        function updateStreak(isCorrect) {
+            const icon = document.getElementById('streak-icon');
+            if (isCorrect) {
+                state.streak++;
+                icon.classList.remove('animate-shield-pulse', 'animate-bio-alert', 'text-alert-600');
+                icon.classList.add('text-bio-600');
+                void icon.offsetWidth;
+                icon.classList.add('animate-shield-pulse');
+            } else {
+                state.streak = 0;
+                icon.classList.remove('animate-shield-pulse', 'animate-bio-alert', 'text-bio-600');
+                icon.classList.add('text-alert-600');
+                void icon.offsetWidth;
+                icon.classList.add('animate-bio-alert');
+            }
+            document.getElementById('streak-counter').innerText = state.streak;
+        }
+
+        // =========================================================================
+        // TAB 1: MIX & MATCH LOGIC
+        // =========================================================================
+        function loadMatchBatch() {
+            const qCol = document.getElementById('match-col-q');
+            const aCol = document.getElementById('match-col-a');
+            qCol.innerHTML = '';
+            aCol.innerHTML = '';
+
+            document.getElementById('match-round').innerText = state.match.batch + 1;
+
+            const start = state.match.batch * 6;
+            const end = start + 6;
+
+            const currentQs = state.match.qs.filter(item => item.id >= start && item.id < end);
+            const currentAs = state.match.as.filter(item => item.id >= start && item.id < end);
+
+            currentQs.forEach(item => {
+                if (state.match.solved.includes(item.id)) return;
+                const btn = document.createElement('button');
+                btn.className = "match-q w-full text-left p-4 rounded-xl shadow-sm border-2 border-slate-200 bg-white font-semibold hover:border-cyber-500 transition-all text-cyber-900 text-sm sm:text-base";
+                btn.innerText = item.t;
+                btn.dataset.id = item.id;
+                btn.onclick = () => handleMatch('q', item.id, btn);
+                qCol.appendChild(btn);
+            });
+
+            currentAs.forEach(item => {
+                if (state.match.solved.includes(item.id)) return;
+                const btn = document.createElement('button');
+                btn.className = "match-a w-full text-left p-4 rounded-xl shadow-sm border-2 border-slate-200 bg-white font-medium hover:border-bio-500 transition-all text-slate-700 text-sm";
+                btn.innerText = item.t;
+                btn.dataset.id = item.id;
+                btn.onclick = () => handleMatch('a', item.id, btn);
+                aCol.appendChild(btn);
+            });
+        }
+
+        function handleMatch(type, id, btn) {
+            if (state.match.solved.includes(id)) return;
+
+            document.querySelectorAll(`.match-${type}`).forEach(b => {
+                if (!state.match.solved.includes(parseInt(b.dataset.id))) {
+                    b.classList.remove('border-cyber-600', 'bg-cyan-50', 'border-bio-600', 'bg-bio-50');
+                }
+            });
+
+            if (type === 'q') {
+                state.match.q = state.match.q === id ? null : id;
+                if (state.match.q !== null) btn.classList.add('border-cyber-600', 'bg-cyan-50');
+            } else {
+                state.match.a = state.match.a === id ? null : id;
+                if (state.match.a !== null) btn.classList.add('border-bio-600', 'bg-bio-50');
+            }
+
+            if (state.match.q !== null && state.match.a !== null) {
+                const qb = document.querySelector(`.match-q[data-id="${state.match.q}"]`);
+                const ab = document.querySelector(`.match-a[data-id="${state.match.a}"]`);
+
+                if (state.match.q === state.match.a) {
+                    state.match.solved.push(state.match.q);
+                    qb.classList.add('hidden');
+                    ab.classList.add('hidden');
+                    updateStreak(true);
+
+                    const batchSolved = state.match.solved.filter(sid => sid >= state.match.batch * 6 && sid < (state.match.batch + 1) * 6).length;
+
+                    if (state.match.solved.length === 18) {
+                        document.getElementById('match-grid').classList.add('hidden');
+                        document.getElementById('match-complete').classList.remove('hidden');
+                    } else if (batchSolved === 6) {
+                        setTimeout(() => {
+                            state.match.batch++;
+                            loadMatchBatch();
+                        }, 400);
+                    }
+                } else {
+                    qb.classList.add('animate-bio-alert', 'border-alert-500', 'bg-rose-50');
+                    ab.classList.add('animate-bio-alert', 'border-alert-500', 'bg-rose-50');
+                    updateStreak(false);
+                    setTimeout(() => {
+                        qb.classList.remove('animate-bio-alert', 'border-alert-500', 'bg-rose-50', 'border-cyber-600', 'bg-cyan-50');
+                        ab.classList.remove('animate-bio-alert', 'border-alert-500', 'bg-rose-50', 'border-bio-600', 'bg-bio-50');
+                    }, 480);
+                }
+
+                state.match.q = null;
+                state.match.a = null;
+                document.getElementById('match-score').innerText = state.match.solved.length;
+            }
+        }
+
+        // =========================================================================
+        // TAB 2: KNOWLEDGE QUIZ LOGIC (30 Marks + Mastery Loop)
+        // =========================================================================
+        function nextQuiz() {
+            if (state.quiz.queue.length === 0) {
+                if (state.quiz.retry.length > 0) {
+                    state.quiz.queue = state.quiz.retry.sort(() => Math.random() - 0.5);
+                    state.quiz.retry = [];
+                    state.quiz.isRetryRound = true;
+                } else {
+                    document.getElementById('quiz-progress').innerText = "30 / 30";
+                    document.getElementById('quiz-container').classList.add('hidden');
+                    document.getElementById('quiz-complete').classList.remove('hidden');
+                    return;
+                }
+            }
+
+            state.quiz.current = state.quiz.queue.shift();
+            document.getElementById('quiz-progress').innerText = `${state.quiz.correct} / 30`;
+            document.getElementById('quiz-retry-badge').classList.toggle('hidden', !state.quiz.isRetryRound);
+            document.getElementById('quiz-question').innerText = state.quiz.current.q;
+
+            const opts = document.getElementById('quiz-options');
+            opts.innerHTML = '';
+            state.quiz.current.options.forEach((o, i) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-xl border border-slate-700 bg-slate-800/80 hover:border-cyber-400 hover:bg-slate-800 transition-colors font-medium text-sm sm:text-base";
+                btn.innerText = o;
+                btn.onclick = () => handleQuiz(i, btn);
+                opts.appendChild(btn);
+            });
+        }
+
+        function handleQuiz(selIdx) {
+            const isCorrect = selIdx === state.quiz.current.ans;
+            const allBtns = document.getElementById('quiz-options').children;
+
+            for (let i = 0; i < allBtns.length; i++) {
+                allBtns[i].className = "w-full text-left p-4 rounded-xl border border-slate-700 bg-slate-900 opacity-50 pointer-events-none text-sm sm:text-base";
+                if (i === selIdx) {
+                    if (isCorrect) {
+                        allBtns[i].className = "w-full text-left p-4 rounded-xl border-2 border-bio-400 bg-bio-500/20 text-bio-200 font-bold pointer-events-none shadow-[0_0_15px_rgba(16,185,129,0.3)] text-sm sm:text-base";
+                    } else {
+                        allBtns[i].className = "w-full text-left p-4 rounded-xl border-2 border-alert-500 bg-alert-600/20 text-rose-200 font-bold pointer-events-none animate-bio-alert text-sm sm:text-base";
+                    }
+                }
+                if (i === state.quiz.current.ans && !isCorrect) {
+                    allBtns[i].className = "w-full text-left p-4 rounded-xl border-2 border-cyber-400 bg-cyber-500/20 text-cyber-200 font-semibold border-dashed pointer-events-none text-sm sm:text-base";
+                }
+            }
+
+            if (isCorrect) {
+                state.quiz.correct++;
+                updateStreak(true);
+            } else {
+                state.quiz.retry.push(state.quiz.current);
+                updateStreak(false);
+            }
+
+            setTimeout(nextQuiz, 1100);
+        }
+
+        // =========================================================================
+        // TAB 3: 6-MARK EXTENDED RESPONSE LOGIC (36 Marks)
+        // =========================================================================
+        function renderLong() {
+            const lCont = document.getElementById('long-list');
+            lCont.innerHTML = '';
+
+            const longTotal = Object.values(state.long.scores).reduce((a, b) => a + b, 0);
+            document.getElementById('long-score-live').innerText = longTotal;
+
+            if (state.long.current >= DATA.long.length) {
+                lCont.innerHTML = `
+                    <div class="text-center py-12 bg-bio-50 border border-bio-500 rounded-2xl text-bio-900">
+                        <i class="ph-fill ph-check-circle text-6xl mb-3 text-bio-600"></i>
+                        <h3 class="font-display text-2xl font-bold">All Six 6-Mark Questions Completed!</h3>
+                        <p class="mt-2 text-bio-700 font-medium">Total Extended Response Score: ${longTotal} / 36</p>
+                        <button onclick="state.long.current = 0; renderLong();" class="mt-5 px-5 py-2.5 bg-white border border-bio-300 text-bio-800 rounded-xl font-bold text-sm hover:bg-bio-100 transition-colors">Review Questions Again</button>
+                    </div>
+                `;
+                return;
+            }
+
+            const i = state.long.current;
+            const item = DATA.long[i];
+            const isMarked = state.long.scores[i] !== undefined;
+            const currentAnswer = state.long.answers[i] || '';
+
+            const div = document.createElement('div');
+            div.className = "bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 animate-slide-in";
+            div.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <span class="bg-cyber-50 text-cyber-700 border border-cyber-200 font-bold text-xs uppercase tracking-wider px-3 py-1 rounded-lg">Question ${i + 1} of 6</span>
+                    <div class="flex gap-2">
+                        ${i > 0 ? `<button onclick="state.long.current--; renderLong();" class="text-xs font-bold text-slate-500 hover:text-cyber-700 px-2 py-1"><i class="ph-bold ph-arrow-left"></i> Prev</button>` : ''}
+                        ${i < 5 ? `<button onclick="state.long.current++; renderLong();" class="text-xs font-bold text-slate-500 hover:text-cyber-700 px-2 py-1">Skip <i class="ph-bold ph-arrow-right"></i></button>` : ''}
+                    </div>
+                </div>
+                <h3 class="font-display font-bold text-lg sm:text-xl text-cyber-900 mb-4 leading-snug">${item.q}</h3>
+
+                <textarea id="long-in-${i}" class="w-full h-36 p-4 border-2 border-slate-200 rounded-xl mb-4 outline-none focus:border-cyber-600 bg-slate-50 text-slate-800 text-sm sm:text-base" placeholder="Write your exam-standard response using precise OCR A terminology..." oninput="state.long.answers[${i}] = this.value" ${isMarked ? 'disabled' : ''}>${currentAnswer}</textarea>
+
+                ${!isMarked ? `<button onclick="revealLong(${i})" id="btn-reveal-${i}" class="w-full bg-cyber-900 hover:bg-cyber-800 text-white font-bold py-3.5 rounded-xl transition-colors shadow-sm">Submit &amp; Reveal Leveled Model Answers</button>` : ''}
+
+                <div id="long-fb-${i}" class="${isMarked ? '' : 'hidden'} mt-6 space-y-4">
+                    <div class="bg-rose-50 p-4 rounded-xl border border-rose-200">
+                        <strong class="text-rose-700 block mb-1 text-sm uppercase tracking-wider">Low Level (1–2 Marks) — GCSE-style phrasing</strong>
+                        <p class="text-sm text-slate-800">${item.low}</p>
+                    </div>
+                    <div class="bg-amber-50 p-4 rounded-xl border border-amber-200">
+                        <strong class="text-amber-800 block mb-1 text-sm uppercase tracking-wider">Medium Level (3–4 Marks) — Good A-Level detail</strong>
+                        <p class="text-sm text-slate-800">${item.med}</p>
+                    </div>
+                    <div class="bg-bio-50 p-4 rounded-xl border border-bio-300">
+                        <strong class="text-bio-800 block mb-1 text-sm uppercase tracking-wider">High Level (5–6 Marks) — Full OCR A Mark-Scheme Precision</strong>
+                        <p class="text-sm text-slate-800 whitespace-pre-line leading-relaxed">${item.high}</p>
+                    </div>
+
+                    <div class="mt-4 border-t border-slate-200 pt-4">
+                        <p class="font-bold text-cyber-900 mb-3 text-sm">Self-assess and award yourself marks (0–6):</p>
+                        <div class="flex gap-2 flex-wrap mb-5">
+                            ${[0, 1, 2, 3, 4, 5, 6].map(m => `
+                                <button onclick="setLongScore(${i}, ${m})" class="w-11 h-11 rounded-xl border-2 font-bold transition-all ${state.long.scores[i] === m ? 'bg-cyber-600 text-white border-cyber-700 shadow-md scale-110' : 'border-slate-200 text-slate-700 hover:border-cyber-500 hover:text-cyber-700'}">${m}</button>
+                            `).join('')}
+                        </div>
+                        <button onclick="nextLong()" class="w-full bg-bio-600 hover:bg-bio-700 text-white font-bold py-3.5 rounded-xl transition-colors flex justify-center items-center gap-2 shadow-sm">
+                            ${i === 5 ? 'Finish Extended Response' : 'Next 6-Mark Question'} <i class="ph-bold ph-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            lCont.appendChild(div);
+        }
+
+        function revealLong(i) {
+            document.getElementById(`long-in-${i}`).disabled = true;
+            document.getElementById(`btn-reveal-${i}`).classList.add('hidden');
+            document.getElementById(`long-fb-${i}`).classList.remove('hidden');
+        }
+
+        function setLongScore(qId, score) {
+            state.long.scores[qId] = score;
+            if (score >= 4) updateStreak(true);
+            renderLong();
+        }
+
+        function nextLong() {
+            state.long.current++;
+            renderLong();
+        }
+
+        // =========================================================================
+        // TAB 4: INTERACTIVE PROCESS SORTER (10 Marks: 2 x 5 Steps)
+        // Supports Drag-and-Drop, Tap-to-Swap, AND Up/Down Arrow Buttons
+        // =========================================================================
+        function showProcessStage(idx) {
+            state.process.selectedSwap = null;
+            [0, 1].forEach(i => {
+                const panel = document.getElementById(`process-stage-${i}`);
+                const tabBtn = document.getElementById(`proc-tab-${i}`);
+                if (i === idx) {
+                    panel.classList.remove('hidden');
+                    tabBtn.className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm border-2 border-cyber-600 bg-cyber-600 text-white shadow-sm transition-all";
+                } else {
+                    panel.classList.add('hidden');
+                    tabBtn.className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm border-2 border-slate-200 bg-white text-slate-700 hover:border-cyber-500 transition-all";
+                }
+            });
+        }
+
+        function renderProcessStage(stageIdx) {
+            const container = document.getElementById(`sort-list-${stageIdx}`);
+            const stage = state.process.stages[stageIdx];
+            container.innerHTML = '';
+
+            stage.order.forEach((step, posIdx) => {
+                const isLocked = stage.locked[posIdx];
+                const isSelected = state.process.selectedSwap &&
+                                   state.process.selectedSwap.stageIdx === stageIdx &&
+                                   state.process.selectedSwap.posIdx === posIdx;
+
+                const card = document.createElement('div');
+                card.className = `sort-card flex items-center gap-3 p-3.5 sm:p-4 rounded-xl border-2 ${isLocked ? 'locked-correct cursor-default' : 'bg-slate-50 border-slate-200 hover:border-cyber-400 cursor-pointer'} ${isSelected ? 'selected-swap' : ''}`;
+                card.draggable = !isLocked;
+
+                // Drag & Drop handlers (Desktop)
+                if (!isLocked) {
+                    card.addEventListener('dragstart', (e) => {
+                        state.process.dragSrcPos = posIdx;
+                        card.classList.add('dragging');
+                        e.dataTransfer.effectAllowed = 'move';
+                    });
+                    card.addEventListener('dragend', () => {
+                        card.classList.remove('dragging');
+                        document.querySelectorAll('.sort-card').forEach(c => c.classList.remove('drag-over'));
+                    });
+                    card.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        card.classList.add('drag-over');
+                    });
+                    card.addEventListener('dragleave', () => {
+                        card.classList.remove('drag-over');
+                    });
+                    card.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        card.classList.remove('drag-over');
+                        const fromPos = state.process.dragSrcPos;
+                        if (fromPos !== null && fromPos !== posIdx && !stage.locked[fromPos] && !stage.locked[posIdx]) {
+                            swapSteps(stageIdx, fromPos, posIdx);
+                        }
+                        state.process.dragSrcPos = null;
+                    });
+                }
+
+                // Step Number Badge
+                const badge = document.createElement('div');
+                badge.className = `w-9 h-9 shrink-0 rounded-lg font-display font-bold flex items-center justify-center text-sm ${isLocked ? 'bg-bio-600 text-white' : 'bg-cyber-900 text-cyber-400'}`;
+                badge.innerHTML = isLocked ? `<i class="ph-bold ph-check text-lg"></i>` : `${posIdx + 1}`;
+
+                // Step Text (Tap to Swap)
+                const textEl = document.createElement('div');
+                textEl.className = "flex-1 text-sm sm:text-base font-medium text-slate-800 leading-snug";
+                textEl.innerText = step.text;
+                if (!isLocked) {
+                    textEl.onclick = () => handleTapSwap(stageIdx, posIdx);
+                }
+
+                // Up / Down Controls (Foolproof on iPads & Chromebooks)
+                const controls = document.createElement('div');
+                controls.className = "flex flex-col gap-1 shrink-0";
+
+                if (!isLocked) {
+                    const upBtn = document.createElement('button');
+                    upBtn.type = "button";
+                    upBtn.className = "p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-cyber-50 hover:border-cyber-400 text-slate-600 disabled:opacity-30";
+                    upBtn.innerHTML = `<i class="ph-bold ph-caret-up text-xs"></i>`;
+                    upBtn.disabled = posIdx === 0 || stage.locked[posIdx - 1];
+                    upBtn.onclick = (e) => { e.stopPropagation(); swapSteps(stageIdx, posIdx, posIdx - 1); };
+
+                    const downBtn = document.createElement('button');
+                    downBtn.type = "button";
+                    downBtn.className = "p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-cyber-50 hover:border-cyber-400 text-slate-600 disabled:opacity-30";
+                    downBtn.innerHTML = `<i class="ph-bold ph-caret-down text-xs"></i>`;
+                    downBtn.disabled = posIdx === 4 || stage.locked[posIdx + 1];
+                    downBtn.onclick = (e) => { e.stopPropagation(); swapSteps(stageIdx, posIdx, posIdx + 1); };
+
+                    controls.appendChild(upBtn);
+                    controls.appendChild(downBtn);
+                } else {
+                    controls.innerHTML = `<span class="text-xs font-bold text-bio-700 bg-bio-100 px-2 py-1 rounded-md">Step ${posIdx + 1}</span>`;
+                }
+
+                card.appendChild(badge);
+                card.appendChild(textEl);
+                card.appendChild(controls);
+                container.appendChild(card);
+            });
+
+            // Update stage badge & total score
+            document.getElementById(`stage-${stageIdx}-badge`).innerText = `${stage.score} / 5 Locked`;
+            const totalProc = state.process.stages[0].score + state.process.stages[1].score;
+            document.getElementById('process-score').innerText = totalProc;
+        }
+
+        function handleTapSwap(stageIdx, posIdx) {
+            const stage = state.process.stages[stageIdx];
+            if (stage.locked[posIdx]) return;
+
+            if (!state.process.selectedSwap || state.process.selectedSwap.stageIdx !== stageIdx) {
+                state.process.selectedSwap = { stageIdx, posIdx };
+                renderProcessStage(stageIdx);
+            } else if (state.process.selectedSwap.posIdx === posIdx) {
+                state.process.selectedSwap = null;
+                renderProcessStage(stageIdx);
+            } else {
+                const fromPos = state.process.selectedSwap.posIdx;
+                state.process.selectedSwap = null;
+                swapSteps(stageIdx, fromPos, posIdx);
+            }
+        }
+
+        function swapSteps(stageIdx, fromPos, toPos) {
+            const stage = state.process.stages[stageIdx];
+            if (stage.locked[fromPos] || stage.locked[toPos]) return;
+            const temp = stage.order[fromPos];
+            stage.order[fromPos] = stage.order[toPos];
+            stage.order[toPos] = temp;
+            renderProcessStage(stageIdx);
+        }
+
+        function checkProcessOrder(stageIdx) {
+            const stage = state.process.stages[stageIdx];
+            let newlyLocked = 0;
+            let wrongCount = 0;
+
+            stage.order.forEach((step, posIdx) => {
+                if (!stage.locked[posIdx]) {
+                    if (step.id === posIdx + 1) {
+                        stage.locked[posIdx] = true;
+                        newlyLocked++;
+                    } else {
+                        wrongCount++;
+                    }
+                }
+            });
+
+            stage.score = stage.locked.filter(Boolean).length;
+            const fb = document.getElementById(`sort-feedback-${stageIdx}`);
+            fb.classList.remove('hidden', 'bg-bio-50', 'text-bio-800', 'border-bio-200', 'bg-amber-50', 'text-amber-800', 'border-amber-200');
+
+            if (stage.score === 5) {
+                fb.classList.add('bg-bio-50', 'text-bio-800', 'border', 'border-bio-200');
+                fb.innerHTML = `<i class="ph-fill ph-check-circle mr-1"></i> Perfect sequence! All 5 steps locked in chronological order (+5/5 marks).`;
+                document.getElementById(`check-btn-${stageIdx}`).classList.add('hidden');
+                updateStreak(true);
+            } else {
+                fb.classList.add('bg-amber-50', 'text-amber-800', 'border', 'border-amber-200');
+                fb.innerHTML = `<i class="ph-fill ph-info mr-1"></i> ${stage.score} of 5 steps are in the correct position (locked in green). Reorder the remaining ${wrongCount} step(s) and check again.`;
+                if (newlyLocked > 0) updateStreak(true);
+                else updateStreak(false);
+            }
+
+            renderProcessStage(stageIdx);
+        }
+
+        // =========================================================================
+        // TAB 5: ACTION PLAN GATE & RESOURCES (Bonus up to +6 marks)
+        // =========================================================================
+        function toggleAction(action) {
+            const cb = document.getElementById(`chk-${action}`);
+            if (action === 'none') {
+                if (cb.checked) {
+                    ['pastPapers', 'rewatchPAGs', 'flashcards', 'glossary', 'copyWork', 'seeTeacher'].forEach(a => {
+                        document.getElementById(`chk-${a}`).checked = false;
+                        actionState[a] = false;
+                    });
+                }
+            } else {
+                if (cb.checked) {
+                    document.getElementById('chk-none').checked = false;
+                    actionState.none = false;
+                }
+            }
+            actionState[action] = cb.checked;
+
+            document.getElementById('input-flashcards').classList.toggle('hidden', !actionState.flashcards);
+            document.getElementById('input-glossary').classList.toggle('hidden', !actionState.glossary);
+            document.getElementById('input-copyWork').classList.toggle('hidden', !actionState.copyWork);
+            document.getElementById('input-seeTeacher').classList.toggle('hidden', !actionState.seeTeacher);
+        }
+
+        function submitActionPlan() {
+            if (actionState.flashcards) actionState.flashcardTopic = document.getElementById('val-flashcards').value.trim();
+            if (actionState.glossary) actionState.glossaryWords = document.getElementById('val-glossary').value.trim();
+            if (actionState.copyWork) {
+                actionState.copyWho = document.getElementById('val-copyWho').value.trim();
+                actionState.copyDate = document.getElementById('val-copyDate').value.trim();
+            }
+            if (actionState.seeTeacher) actionState.teacherDate = document.getElementById('val-seeTeacher').value.trim();
+
+            actionState.submitted = true;
+            document.getElementById('action-plan-section').classList.add('hidden');
+            document.getElementById('resources-grid').classList.remove('hidden');
+            document.getElementById('resources-intro').innerText = "Exam Prep & PAG resources unlocked! Use these links and practical guides to complete your action plan.";
+        }
+
+        function calculateBonusAndList() {
+            let rawBonus = 0;
+            let actionListHtml = "";
+
+            if (actionState.pastPapers) {
+                rawBonus += 3;
+                actionListHtml += "<div>• Complete OCR A Module 4.1.1 past paper questions</div>";
+            }
+            if (actionState.rewatchPAGs) {
+                rawBonus += 3;
+                actionListHtml += "<div>• Rewatch PAG 1 &amp; PAG 7 practical demos</div>";
+            }
+            if (actionState.flashcards) {
+                if (actionState.flashcardTopic) rawBonus += 3;
+                actionListHtml += `<div>• Flashcards (Weak topic: <span class="font-bold text-cyber-800">${escapeHtml(actionState.flashcardTopic || 'Not specified')}</span>)</div>`;
+            }
+            if (actionState.glossary) {
+                if (actionState.glossaryWords) rawBonus += 3;
+                actionListHtml += `<div>• Glossary (Words: <span class="font-bold text-cyber-800">${escapeHtml(actionState.glossaryWords || 'Not specified')}</span>)</div>`;
+            }
+            if (actionState.copyWork) {
+                if (actionState.copyWho || actionState.copyDate) rawBonus += 3;
+                actionListHtml += `<div>• Copy missed notes (From: <span class="font-bold text-cyber-800">${escapeHtml(actionState.copyWho || 'N/A')}</span> on <span class="font-bold text-cyber-800">${escapeHtml(actionState.copyDate || 'N/A')}</span>)</div>`;
+            }
+            if (actionState.seeTeacher) {
+                if (actionState.teacherDate) rawBonus += 3;
+                actionListHtml += `<div>• See teacher for help (Date: <span class="font-bold text-cyber-800">${escapeHtml(actionState.teacherDate || 'N/A')}</span>)</div>`;
+            }
+
+            if (actionState.none || actionListHtml === "") {
+                actionListHtml = "<div class='italic text-slate-400'>No reflection actions selected.</div>";
+            }
+
+            // Cap bonus at +6 marks so 94 core + 6 bonus = 100 total
+            const cappedBonus = Math.min(rawBonus, 6);
+            return { bonus: cappedBonus, html: actionListHtml };
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+
+        // =========================================================================
+        // TAB 6: DASHBOARD, MODALS & SCORECARD REPORT (Out of 100)
+        // =========================================================================
+        function updateDashboard() {
+            const longTotal = Object.values(state.long.scores).reduce((a, b) => a + b, 0);
+            const procTotal = state.process.stages[0].score + state.process.stages[1].score;
+            const { bonus } = calculateBonusAndList();
+
+            document.getElementById('dash-match').innerText = state.match.solved.length;
+            document.getElementById('dash-quiz').innerText = state.quiz.correct;
+            document.getElementById('dash-long').innerText = longTotal;
+            document.getElementById('dash-process').innerText = procTotal;
+            document.getElementById('dash-bonus').innerText = bonus;
+        }
+
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            if (id === 'name-modal') {
+                document.getElementById('name-error').classList.add('hidden');
+                document.getElementById('student-name-input').focus();
+            }
+        }
+
+        function closeModals() {
+            ['name-modal', 'scorecard-modal', 'pag-blood-modal', 'pag-microbe-modal'].forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.add('hidden');
+                el.classList.remove('flex');
+            });
+        }
+
+        function generateScorecard() {
+            const nameInput = document.getElementById('student-name-input');
+            const name = nameInput.value.trim();
+            if (!name) {
+                document.getElementById('name-error').classList.remove('hidden');
+                nameInput.focus();
+                return;
+            }
+
+            closeModals();
+
+            const matchScore = state.match.solved.length;
+            const quizScore = state.quiz.correct;
+            const procScore = state.process.stages[0].score + state.process.stages[1].score;
+            const longTotal = Object.values(state.long.scores).reduce((a, b) => a + b, 0);
+            const { bonus, html } = calculateBonusAndList();
+
+            const total = matchScore + quizScore + procScore + longTotal + bonus; // Max 100
+            const percent = Math.round((total / 100) * 100);
+
+            document.getElementById('sc-name').innerText = name;
+            document.getElementById('sc-match').innerText = matchScore;
+            document.getElementById('sc-quiz').innerText = quizScore;
+            document.getElementById('sc-process').innerText = procScore;
+            document.getElementById('sc-long').innerText = longTotal;
+            document.getElementById('sc-bonus').innerText = bonus;
+            document.getElementById('sc-action-list').innerHTML = html;
+            document.getElementById('sc-total').innerText = total;
+            document.getElementById('sc-percent').innerText = percent;
+            document.getElementById('sc-timestamp').innerText = new Date().toLocaleString('en-GB');
+
+            openModal('scorecard-modal');
+
+            // UK English (en-GB) Web Speech API sign-off
+            try {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(
+                        `Well done ${name}. Thank you for locking in to your Communicable Diseases revision today.`
+                    );
+                    utterance.lang = 'en-GB';
+                    const voices = window.speechSynthesis.getVoices();
+                    const ukVoice = voices.find(v => v.lang === 'en-GB');
+                    if (ukVoice) utterance.voice = ukVoice;
+                    window.speechSynthesis.speak(utterance);
+                }
+            } catch (err) {
+                // Fail silently if speech synthesis is blocked in sandboxed iframe
+            }
+        }
+    </script>
+</body>
+</html>
