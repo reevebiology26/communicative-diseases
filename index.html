@@ -559,6 +559,151 @@
     <!-- SCORECARD REPORT MODAL -->
     <div id="scorecard-modal" class="fixed inset-0 bg-cyber-950/90 z-[60] hidden items-center justify-center p-4 backdrop-blur-md">
         <div class="bg-white p-6 sm:p-8 rounded-3xl max-w-md w-full shadow-[0_0_50px_rgba(6,182,212,0.3)] relative border-4 border-cyber-500 max-h-[95vh] overflow-y-auto animate-slide-in">
+            <button onclick="closeModals()" class="absolute top-4 right-4 text-slate-400 hover:text-alert-600 transition-colors">
+                <i class="ph-fill ph-x-circle text-3xl"></i>
+            </button>
+
+            <div class="text-center mb-6">
+                <div class="animate-shield-pulse inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-bio-50 text-bio-600 mb-2 border border-bio-200">
+                    <i class="ph-fill ph-shield-check text-4xl"></i>
+                </div>
+                <h2 class="font-display text-3xl font-extrabold text-cyber-900 leading-tight">Communicable Diseases</h2>
+                <p class="text-cyber-600 font-bold mt-1 uppercase tracking-widest text-xs">OCR A A-Level Biology • Mark Report</p>
+            </div>
+
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 mb-5">
+                <div class="flex justify-between items-center border-b border-slate-200 pb-3 mb-3">
+                    <span class="text-slate-500 font-bold uppercase tracking-wider text-xs">Student</span>
+                    <span class="font-bold text-cyber-900 text-base" id="sc-name"></span>
+                </div>
+
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-slate-600 font-medium">Mix &amp; Match</span>
+                        <span class="font-bold text-cyber-900"><span id="sc-match">0</span> <span class="text-slate-400">/ 18</span></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-600 font-medium">Knowledge Quiz</span>
+                        <span class="font-bold text-cyber-900"><span id="sc-quiz">0</span> <span class="text-slate-400">/ 30</span></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-600 font-medium">Process Sorter</span>
+                        <span class="font-bold text-cyber-900"><span id="sc-process">0</span> <span class="text-slate-400">/ 10</span></span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-200 pb-3">
+                        <span class="text-slate-600 font-medium">6-Mark Questions</span>
+                        <span class="font-bold text-cyber-900"><span id="sc-long">0</span> <span class="text-slate-400">/ 36</span></span>
+                    </div>
+                </div>
+
+                <!-- Action Plan Breakdown -->
+                <div class="pt-3 border-b border-slate-200 pb-3">
+                    <div class="flex justify-between items-center text-sm mb-2">
+                        <span class="text-cyber-800 font-bold">What to Do Next:</span>
+                        <span class="font-bold text-bio-700 bg-bio-50 px-2.5 py-0.5 rounded-md text-xs border border-bio-200">+<span id="sc-bonus">0</span> / 6 Bonus</span>
+                    </div>
+                    <div id="sc-action-list" class="text-xs text-slate-600 space-y-1 bg-white p-2.5 rounded-xl border border-slate-200 max-h-28 overflow-y-auto"></div>
+                </div>
+
+                <div class="flex justify-between pt-4 items-center">
+                    <span class="font-display font-bold text-cyber-900 uppercase text-base">Total Score:</span>
+                    <div class="text-right">
+                        <div class="font-black text-cyber-600 text-3xl leading-none"><span id="sc-total">0</span> <span class="text-lg text-slate-400">/ 100</span></div>
+                        <div class="text-xs font-bold text-bio-700 uppercase tracking-wider mt-1"><span id="sc-percent">0</span>% Mastery</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center text-xs text-slate-400 font-medium">
+                <p class="font-bold text-cyber-700 mb-1">Screenshot this report for Mr Reeve.</p>
+                <p id="sc-timestamp"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAG 1 MODAL: BLOOD SMEAR MICROSCOPY -->
+    <div id="pag-blood-modal" class="fixed inset-0 bg-cyber-950/80 z-[60] hidden items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white p-6 rounded-2xl max-w-2xl w-full shadow-2xl relative border-t-8 border-cyber-600 max-h-[90vh] overflow-y-auto animate-slide-in">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="font-display text-2xl font-bold text-cyber-900 flex items-center gap-2"><i class="ph-fill ph-microscope text-cyber-600"></i> PAG 1 Reminder: Blood Smear Microscopy</h2>
+                <button onclick="closeModals()" class="text-slate-400 hover:text-alert-600"><i class="ph-bold ph-x text-2xl"></i></button>
+            </div>
+            <div class="text-sm text-slate-800 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
+                <div class="bg-white p-4 rounded-xl border border-cyan-200 shadow-sm space-y-1">
+                    <p><strong class="text-cyber-700">Focus:</strong> Identifying erythrocytes, neutrophils, and lymphocytes on a stained mammalian blood smear.</p>
+                    <p><strong class="text-cyber-700">Key Magnification Formula:</strong> Actual Size = Image Size ÷ Magnification (convert mm → µm by × 1000).</p>
+                    <p><strong class="text-cyber-700">Calibration:</strong> Calibrate the eyepiece graticule against a stage micrometer at each objective magnification.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-cyber-900 mb-2">Identification &amp; Biological Drawing Rules</h4>
+                    <ol class="list-decimal pl-5 space-y-1.5 font-medium">
+                        <li>Start on the lowest power objective lens (×4), focus using the coarse knob, then step up to ×40 / ×100 using the fine focus knob only.</li>
+                        <li><strong>Neutrophils:</strong> Recognised by a multi-lobed nucleus and granular cytoplasm (most abundant phagocyte).</li>
+                        <li><strong>Lymphocytes:</strong> Smaller than neutrophils with a single large, spherical nucleus filling most of the cell and very little cytoplasm.</li>
+                        <li><strong>Erythrocytes:</strong> Biconcave discs with no nucleus, stained pink/red.</li>
+                        <li>Use a sharp HB pencil, continuous single lines (no sketching or shading), label lines with a ruler (no arrowheads), and include a title plus magnification/scale bar.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAG 7 MODAL: ANTIMICROBIAL DISC DIFFUSION -->
+    <div id="pag-microbe-modal" class="fixed inset-0 bg-cyber-950/80 z-[60] hidden items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white p-6 rounded-2xl max-w-2xl w-full shadow-2xl relative border-t-8 border-bio-600 max-h-[90vh] overflow-y-auto animate-slide-in">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="font-display text-2xl font-bold text-cyber-900 flex items-center gap-2"><i class="ph-fill ph-petri-dish text-bio-600"></i> PAG 7 Reminder: Antimicrobial Disc Diffusion</h2>
+                <button onclick="closeModals()" class="text-slate-400 hover:text-alert-600"><i class="ph-bold ph-x text-2xl"></i></button>
+            </div>
+            <div class="text-sm text-slate-800 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
+                <div class="bg-white p-4 rounded-xl border border-bio-200 shadow-sm space-y-1">
+                    <p><strong class="text-bio-700">Independent Variable:</strong> Type or concentration of antibiotic / antimicrobial substance on paper discs.</p>
+                    <p><strong class="text-bio-700">Dependent Variable:</strong> Area of clear zone of inhibition around each disc (mm²).</p>
+                    <p><strong class="text-bio-700">Control Variables:</strong> Species/volume of bacterial lawn, disc diameter, incubation temperature (25°C in school labs), incubation time (24–48 h), plus a sterile water control disc.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-cyber-900 mb-2">Aseptic Method &amp; Calculations</h4>
+                    <ol class="list-decimal pl-5 space-y-1.5 font-medium">
+                        <li>Swab bench with disinfectant; work near a Bunsen burner (blue flame creates an upward convection current preventing airborne contamination).</li>
+                        <li>Flame the neck of the bacterial broth bottle before and after transferring a small volume onto a sterile nutrient agar plate, then spread evenly with a sterilised spreader.</li>
+                        <li>Use flamed forceps to place antibiotic-soaked discs (and one sterile water control disc) evenly spaced on the agar, lifting the lid at a 45° angle only briefly.</li>
+                        <li>Secure the lid with 2–4 small pieces of tape (never seal all the way around, to allow O₂ entry and prevent growth of pathogenic anaerobes).</li>
+                        <li>Incubate upside down (prevents condensation dripping onto the lawn) at 25°C (prevents growth of human pathogens that thrive at 37°C).</li>
+                        <li><strong>Calculations:</strong> Measure two perpendicular diameters of each clear zone, find the mean radius (r = d/2), and calculate area = πr².</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- APP LOGIC -->
+    <script>
+        // =========================================================================
+        // OCR A-LEVEL BIOLOGY CHAPTER 12 DATA BANK
+        // =========================================================================
+        const DATA = {
+            // 18 Exact OCR A Key Terms & Definitions (3 rounds of 6)
+            match: [
+                { q: "Pathogen", a: "A microorganism (bacterium, virus, fungus, or protoctist) that causes a communicable disease." },
+                { q: "Vector", a: "A living organism (e.g., female Anopheles mosquito) that transfers a pathogen from one host to another." },
+                { q: "Callose", a: "A polysaccharide deposited between plant cell walls and plasma membranes, and in plasmodesmata, to block pathogen spread." },
+                { q: "Tyloses", a: "Balloon-like swellings that grow into plant xylem vessels to plug them and prevent pathogen transport." },
+                { q: "Opsonin", a: "A chemical (such as an antibody) that binds to a pathogen's antigens to tag it for easier recognition by phagocytes." },
+                { q: "Phagolysosome", a: "The intracellular structure formed when lysosomes fuse with a phagosome to release hydrolytic lysozymes." },
+                { q: "Antigen-Presenting Cell (APC)", a: "A macrophage or B cell that displays foreign antigens bound to MHC proteins on its cell surface membrane." },
+                { q: "Clonal selection", a: "The binding of a specific antigen to a complementary receptor on a B or T lymphocyte, selecting it for activation." },
+                { q: "Clonal expansion", a: "The rapid proliferation of a selected B or T lymphocyte by mitosis to produce a large clone of identical cells." },
+                { q: "Interleukins", a: "Signalling molecules (cytokines) secreted by T helper cells that stimulate B cells and phagocytes." },
+                { q: "Perforin", a: "A protein released by T killer cells that punches pores in an infected host cell's membrane, causing cell lysis." },
+                { q: "Plasma cell", a: "A differentiated B lymphocyte with extensive rough ER that secretes large quantities of specific antibodies." },
+                { q: "Agglutination", a: "The clumping together of pathogens by antibodies binding to antigens on two different pathogens simultaneously." },
+                { q: "Antitoxin", a: "An antibody that binds to and neutralises toxic molecules produced by pathogenic bacteria." },
+                { q: "Autoimmune disease", a: "A condition in which the immune system fails to recognise self-antigens and attacks the body's own healthy tissues." },
+                { q: "Herd immunity", a: "Protection of unvaccinated individuals achieved when a sufficiently high proportion of the population is vaccinated." },
+                { q: "Artificial active immunity", a: "Long-term immunity acquired through vaccination, stimulating the body to produce its own antibodies and memory cells." },
+                { q: "Natural passive immunity", a: "Short-term immunity gained by receiving pre-formed antibodies across the placenta or in colostrum/breast milk." }
+            ],
+
             // 30 High-Challenge OCR A Multiple Choice Questions (balanced option lengths)
             quiz: [
                 {
